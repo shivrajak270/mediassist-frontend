@@ -35,27 +35,23 @@ pipeline {
 
         stage('Build react') {
             steps {
-                dir('mediassist-frontend') {
+
                     sh '''
                     npm install
                     npm run build
-                    echo "After build:"
-                    pwd
-                    ls -la
-                    ls -la dist || true
                     '''
-                }
+
             }
         }
 
         stage('Deploy to vm') {
             steps {
                 sshagent(credentials: ['vm-ssh-key']) {
-                    dir('mediassist-frontend') {
+
                         sh '''
                         scp -r -o StrictHostKeyChecking=no dist/* shivraj@192.168.64.5:/home/shivraj/frontend/
                         '''
-                    }
+
                 }
             }
         }
