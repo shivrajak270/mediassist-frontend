@@ -19,8 +19,8 @@ pipeline{
             steps {
                 dir('mediassist-frontend') {
                     sh '''
-                           npm install
-                           npm run build
+                              /usr/local/bin/npm install 
+                              /usr/local/bin/npm build
                        '''
                 }
             }
