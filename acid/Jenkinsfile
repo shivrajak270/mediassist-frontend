@@ -1,5 +1,8 @@
 pipeline{
     agent any
+    tools {
+        nodejs 'Node22'
+    }
     parameters {
         string(
                 name: 'GIT_BRANCH',
@@ -15,12 +18,21 @@ pipeline{
                         url: 'https://github.com/shivrajak270/mediassist-frontend.git'
             }
         }
+    }
+    stage('Debug') {
+        steps {
+            sh '''
+        pwd
+        ls -la
+        '''
+        }
+    }
         stage('Build react') {
             steps {
                 dir('mediassist-frontend') {
                     sh '''
-                              /usr/local/bin/npm install 
-                              /usr/local/bin/npm build
+                              npm install 
+                              npm run build
                        '''
                 }
             }
@@ -53,4 +65,4 @@ pipeline{
         }
 
     }
-}
+
