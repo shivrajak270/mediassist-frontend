@@ -1,25 +1,23 @@
 pipeline{
     agent any
-     environment {
-        PATH = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/opt/homebrew/Cellar/maven/3.9.16/libexec/bin:${env.PATH}"
+    parameters {
+        string(
+                name: 'GIT_BRANCH',
+                defaultValue: 'main',
+                description: 'Git branch to build'
+        )
     }
+
     stages {
         stage('Checkout code') {
             steps {
-                        git branch: 'main',
-                        url: 'https://github.com/shivrajak270/Bloomdev.git'
-            }
-        }
-        stage('Build') {
-            steps {
-                dir('full-stack-project/bloom/Backend/Backend') {
-                    sh 'mvn clean install -DskipTests'
-                }
+                git branch: params.GIT_BRANCH,
+                        url: 'https://github.com/shivrajak270/mediassist-frontend.git'
             }
         }
         stage('Build react') {
             steps {
-                dir('full-stack-project/bloom/Frontend') {
+                dir('mediassist-frontend') {
                     sh '''
                            npm install
                            npm run build
@@ -27,15 +25,10 @@ pipeline{
                 }
             }
         }
-        stage('Deploy to vm'){
-            steps{
-                sshagent(credentials: ['vm-ssh-key']){
-                    dir('full-stack-project/bloom/Backend/Backend') {
-                        sh '''
-                        scp -o StrictHostKeyChecking=no target/demo-0.0.1-SNAPSHOT.jar shivraj@192.168.64.5:/home/shivraj/demo-0.0.1-SNAPSHOT.jar
-                           '''
-                    }
-                    dir('full-stack-project/bloom/Frontend') {
+        stage('Deploy to vm') {
+            steps {
+                sshagent(credentials: ['vm-ssh-key']) {
+                    dir('mediassist-frontend') {
 
                         sh '''
                         scp -r -o StrictHostKeyChecking=no dist/* shivraj@192.168.64.5:/home/shivraj/frontend/
@@ -45,33 +38,6 @@ pipeline{
 
                 }
 
-            }
-        }
-        stage('Stop Old Application') {
-            steps {
-
-                sshagent(credentials: ['vm-ssh-key']) {
-
-                    sh '''
-            ssh -o StrictHostKeyChecking=no shivraj@192.168.64.5 "
-                pkill java || true
-            "
-            '''
-
-                }
-            }
-        }
-        stage('Start New Application') {
-            steps {
-                sshagent(credentials: ['vm-ssh-key']) {
-                    sh '''
-            ssh -o StrictHostKeyChecking=no shivraj@192.168.64.5 "
-                pkill -f demo-0.0.1-SNAPSHOT.jar || true &&
-                nohup java -jar /home/shivraj/demo-0.0.1-SNAPSHOT.jar > app.log 2>&1 < /dev/null &
-                exit
-            "
-            '''
-                }
             }
         }
         stage('Restart Nginx') {
