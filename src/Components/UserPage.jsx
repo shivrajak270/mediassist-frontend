@@ -15,7 +15,6 @@ const UserPage = () => {
 
 const [serch, setfirst] = useState('')
 const [resuts,setresults]=useState([])
- const token=localStorage.getItem("token")
 
  const clearsearch=(name)=>{
   setfirst(name);
@@ -26,11 +25,10 @@ const [resuts,setresults]=useState([])
 
 const fetchData=async (value)=>{
   const response=await axios.get(`${BASE_URL}/users`,{
-    headers:{
-       Authorization:`Bearer ${token}`
-    }
+    withCredentials:true
   }
-)
+
+);
 let result=[];
 if(value.trim()){
  result=response.data.filter(item=>

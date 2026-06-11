@@ -7,7 +7,6 @@ const SerachList = ({ results ,clear}) => {
   const [response, setresponse] = useState([]);
   const[medicinename,setmedicinename]=useState("");
 
-  const token = localStorage.getItem("token");
 
   const listOfShops = async (id, name) => {
 
@@ -21,9 +20,7 @@ const SerachList = ({ results ,clear}) => {
       `${BASE_URL}/users/getmedicine`,
       data,
       {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        withCredentials:true
       }
     );
 

@@ -8,7 +8,6 @@ const ResultCard = ({ results,medicinename}) => {
 
   try {
 
-    const token = localStorage.getItem("token");
 
     const data = {
       to: results.email,
@@ -22,9 +21,7 @@ const ResultCard = ({ results,medicinename}) => {
       `${BASE_URL}/users/sendreserve`,
       data,
       {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+         withCredentials:true
       }
     );
 

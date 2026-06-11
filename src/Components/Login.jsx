@@ -15,43 +15,49 @@ const Login = () => {
   const navigate=useNavigate();
 
   const handlesubmit = async () => {
-    const loginurl = `${BASE_URL}/auth/login`;
-    const data = {
-      username: username,
-      password: password
-    };
 
-    try {
-      const response = await axios.post(loginurl, data);
+  const loginurl = `${BASE_URL}/auth/login`;
 
-      // assuming token comes from response.data.token
-      const token = response.data;
-
-      localStorage.setItem("token", token);
-
-      const decoded = jwtDecode(token);
-      console.log(decoded.role);
-
-      setrole(decoded.role);
-
-    } catch (error) {
-        Swal.fire({
-            icon: 'error',
-          title: 'Failed',
-          text: error.response?.data || `wrong credentials login failed`,
-           })
-    }
+  const data = {
+    username,
+    password
   };
-  useEffect(()=>{
-    if(!role) return;
 
-    if(role==="USER")
-      navigate('/user')
+  try {
 
-    if(role=="PHARMACIST")
-      navigate('/pharmapage')
-  },[role,navigate]);
+    await axios.post(
+      loginurl,
+      data,
+      {
+        withCredentials: true
+      }
+    );
 
+    const meResponse = await axios.get(
+      `${BASE_URL}/auth/me`,
+      {
+        withCredentials: true
+      }
+    );
+
+    const role = meResponse.data.role;
+
+    if(role === "USER")
+      navigate("/user");
+
+    if(role === "PHARMACIST")
+      navigate("/pharmapage");
+
+  } catch (error) {
+
+    Swal.fire({
+      icon: 'error',
+      title: 'Failed',
+      text: error.response?.data || 'Wrong credentials login failed'
+    });
+
+  }
+};
   return (
     <div style={{
       width: '350px',
